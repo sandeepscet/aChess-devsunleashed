@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Meta Tags -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>A-Chess</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css"
+    integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/dark-hive/theme.min.css"
+    integrity="sha512-pN35/N51n1IeABlNGOSb5ltVKGbvUE8exTMhiB/4ijuy+UOYEWawQZzEs2yUvvCWopRO3uiRueeGnd/mQD0eTQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css"
+    integrity="sha512-SbiR/eusphKoMVVXysTKG/7VseWii+Y3FdHrt0EpKgpToZeemhqHeZeLWLhJutz/2ut2Vw1uQEj2MbRF+TVBUA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+
+  <style>
+    #loader {
+      background-repeat: no-repeat;
+      height: 700px;
+      background-image: url(images/loader.svg);
+    }
+
+    .highlight-white {
+  box-shadow: inset 0 0 3px 3px rgb(43, 223, 43);
+}
+.highlight-black {
+  box-shadow: inset 0 0 3px 3px rgb(5, 87, 5);
+}
+
+.highlight-green {
+  box-shadow: inset 0 0 3px 3px red;
+}
+
+  </style>
+
+</head>
+
+<body style="min-height: 600px;min-width:500px">
+
+  <div id="loader1" class="container"></div>
+
+  <div class="container" id="config">
+    <div class="row">
+      <div class="col">
+        <input type="text" id="teama" name="teama" class="team" />
+      </div>
+      <div class="col" id="teamaresult">
+        Result:
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <input type="text" id="teamb" name="teamb" class="team" />
+      </div>
+      <div class="col" id="teambresult">
+        Result:
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <button class="btn" id="startgame"> Start Game </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="game">
+    <div class="row">
+      <div class="col">
+        <div id="myBoard" style="width: 400px">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="info">
+    <div class="row">
+      <div class="col">
+        <label>Status:</label>
+        <div id="status"></div>
+        <label>FEN:</label>
+        <div id="fen"></div>
+        <label>PGN:</label>
+        <div id="pgn"></div>
+        <button id="hightlightMove" class="btn">Highlight Move</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="vote">
+    <div class="row">
+      <div class="col">
+        <button id="approve" class="btn">Highlight Move</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"
+    integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js"
+    integrity="sha512-1/RvZTcCDEUjY/CypiMz+iqqtaoQfAITmNSJY17Myp4Ms5mdxPS5UV7iOfdZoxcGhzFbOm6sntTKJppjvuhg4g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"
+    integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+  <script src="https://chessboardjs.com/js/chess-0.10.2.min.js"></script>
+</body>
+
+</html>

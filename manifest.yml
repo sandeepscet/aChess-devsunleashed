@@ -1,0 +1,78 @@
+modules:
+  jira:globalPage:
+    - key: hello-world-global
+      resource: game-resource
+      resolver:
+        function: issue-panel-resolver
+      title: A-Chess
+      icon: https://hallarayurveda.com/images/achess.svg
+  jira:issuePanel:
+    - key: hello-world-panel
+      resource: game-resource
+      resolver:
+        function: issue-panel-resolver
+      title: A-Chess
+      icon: https://hallarayurveda.com/images/achess.svg
+  function:
+    - key: issue-panel-resolver
+      handler: indexResolver.handler
+    - key: main
+      handler: index.run
+    - key: events
+      handler: indexEvents.run
+  trigger:
+    - key: game-resource
+      function: events
+      events: ["avi:jira:updated:issue"]
+  jira:adminPage:
+    - key: admin-page-example-hello-world-configure-page
+      resource: admin-resource
+      title: A-Chess-Configure
+      resolver:
+        function: issue-panel-resolver
+      useAsConfig: true
+    - key: admin-page-example-hello-world-admin-page
+      function: main
+      title: A-Chess-Get started
+    - key: admin-page-example-hello-world-get-started-page
+      function: main
+      title: A-Chess-Get started
+      useAsGetStarted: true
+resources:
+  - key: game-resource
+    path: static/app/dist/
+    tunnel:
+      port: 9000
+  - key: admin-resource
+    path: static/admin/build/
+app:
+  id: ari:cloud:ecosystem::app/bc100dd8-d6dd-48a6-801e-9ac24f3427ce
+permissions:
+  scopes:
+    - storage:app
+    - read:jira-work
+    - read:jira-user	
+    - write:jira-work
+  external:
+    fonts:
+      - 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/fonts/bootstrap-icons.woff'
+      - 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/fonts/bootstrap-icons.woff2'
+      - 'https://fonts.googleapis.com/css?family=Varela+Round'
+    styles:
+      - 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'
+      - 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css'
+      - 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/dark-hive/theme.min.css'
+      - 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css'
+      - 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css'
+      - 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css'
+    scripts:
+      - 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js'
+      - 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js'
+      - 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js'
+      - 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js'
+      - 'https://chessboardjs.com/js/chess-0.10.2.min.js'
+  content:
+    styles:
+      - 'unsafe-inline'
+    scripts:
+      - 'unsafe-inline'
