@@ -7,7 +7,8 @@ Every Task will Have approve button , Max approve will convert to story as final
 Reject the task if not valid move or valid move not allow at all
 Keep on adding history in epic description as Table
 One Day - one move by any Team - whoever quickly approve 10 (admin config) will convert issue into story
-Notification to all the people on their move time and to all on win
+Notification to all the people on their move time and to all on win - or mention on their move
+- Mentioned verybody when game over
 - Keep on changing the status of epic , story and task based on move
 - whover has jira-project-settings-page or jira-admin-page can Intialize the game and play the game
 - EPIC : isSiteAdmin isAdmin isProjectAdmin canAdministerProjects
@@ -62,6 +63,7 @@ Forge POC
         - config (autoapprove on vote)
     - History
         - gameid
+        - moveId
         - Move 
         - FEN  position
         - moveBy
@@ -73,6 +75,6 @@ Forge POC
         - votecount
         - updatedDate
 ### coding
-    - EPIC Mode - Read Only - current stage
+    - EPIC Mode - Read Only - current stage or config
     - Story Mode - Play (TODO) , Last movement (Done)
     - Tasks Mode - Read only with last movement animation

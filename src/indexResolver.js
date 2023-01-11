@@ -21,6 +21,23 @@ resolver.define("getCurrentUserDetails", async ({ payload, context }) => {
     }
 });
 
+resolver.define("getIssueDetails", async ({ payload, context }) => {
+  const res = await api.asUser().requestJira(route`/rest/api/3/issue/${payload.issueKey}`, {
+    headers: {
+      'Accept': 'application/json',
+    }
+    });
+    const status = res;
+    const data = await res.text();
+    if(status.status === 200)
+    {
+      return JSON.parse(data);
+    }
+    else{
+      return {};
+    }
+});
+
 
 resolver.define("jiraIssues", async ({ payload, context }) => {
 //  return {};

@@ -1,11 +1,4 @@
 modules:
-  jira:globalPage:
-    - key: hello-world-global
-      resource: game-resource
-      resolver:
-        function: issue-panel-resolver
-      title: A-Chess
-      icon: https://hallarayurveda.com/images/achess.svg
   jira:issuePanel:
     - key: hello-world-panel
       resource: game-resource
@@ -20,10 +13,6 @@ modules:
       handler: index.run
     - key: events
       handler: indexEvents.run
-  trigger:
-    - key: game-resource
-      function: events
-      events: ["avi:jira:updated:issue"]
   jira:adminPage:
     - key: admin-page-example-hello-world-configure-page
       resource: admin-resource
@@ -57,7 +46,6 @@ permissions:
     fonts:
       - 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/fonts/bootstrap-icons.woff'
       - 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/fonts/bootstrap-icons.woff2'
-      - 'https://fonts.googleapis.com/css?family=Varela+Round'
     styles:
       - 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'
       - 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css'
