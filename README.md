@@ -56,8 +56,8 @@ Forge POC
     - game 
         - id
         - epicId
-        - teama
-        - teamb
+        - whitteam
+        - blackteam
         - startDate
         - createdBy
         - config (autoapprove on vote)
@@ -67,7 +67,7 @@ Forge POC
         - Move 
         - FEN  position
         - moveBy
-        - taskId
+        - subtaskKey
         - date
     - votes
         - gameid
@@ -78,3 +78,7 @@ Forge POC
     - EPIC Mode - Read Only - current stage or config
     - Story Mode - Play (TODO) , Last movement (Done)
     - Tasks Mode - Read only with last movement animation
+
+
+## TODO
+- attach label to epic once start game

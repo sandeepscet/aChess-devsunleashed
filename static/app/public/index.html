@@ -83,6 +83,11 @@
         <label>FEN: <span id="fen"></span> </label>
       </div>
     </div>
+    <div class="row d-none">
+      <div class="col">
+          <a href="javascript:void(0)" id="history" target="_blank">History</a>
+      </div>
+    </div>
   </div>
 
   <div class="container d-none" id="game">
@@ -130,9 +135,17 @@
         <button id="votemove" class="btn btn-primary">Vote</button>
       </div>
       <div class="col">
-        <button id="hightlightMove" class="btn  btn-secondary">Highlight Move</button>
+        <button id="hightlightMove" class="btn  btn-secondary d-none">Highlight Move</button>
       </div>
     </div>    
+  </div>
+
+  <div class="container mt-1">
+    <div class="row">
+      <div class="col">
+        <button  id="reload" class="btn btn-primary"> Reload </button>
+      </div>
+      </div>
   </div>
 
 

@@ -1,13 +1,13 @@
 // @ts-nocheck
 /* eslint-disable */
 
-import { invoke } from '@forge/bridge';
-import { view } from '@forge/bridge';
+import { invoke, view, router } from '@forge/bridge';
 
 const issueTypes = {   "EPIC": "10000", "BUG": "10004", "STORY": "10001", "SUBTASK": "10003" , "TASK": "10002" };
 const gameTypS = {   "EPIC": "EPIC",  "STORY": "STORY", "SUBTASK": "SUBTASK" ,"OTHER" : "OTHER" };
 const gameModes = { "TODO" : "TODO" , "EDIT" : "EDIT" , "VIEW" : "VIEW" , "HIGHLIGHT" : "HIGHLIGHT"};
 const gameLabel = "a-chess";
+let whiteteam = [], blackteam = [];
 const context = await view.getContext();
 const accountId = context.accountId;
 const currentDate = new Date(Date.now()).toLocaleString();
@@ -15,9 +15,11 @@ const issue = context.extension.issue;
 const siteurl = context.siteUrl;
 const project = context.extension.project;
 
+
 const userdetails = await invoke('getCurrentUserDetails');
-const issuedetails = await invoke('getIssueDetails', {issueKey : issue.key}); console.log(issuedetails);
+const issuedetails = await invoke('getIssueDetails', {issueKey : issue.key}); 
 const parentdetails = { isGameIssue : false , 'parentKey' : '' , 'parentKeyType' : '' , 'hasSubtasks' : false};
+
 if(!$.isEmptyObject(issuedetails) && !$.isEmptyObject(issuedetails.fields)){
   const fields = issuedetails.fields;
 
@@ -31,10 +33,40 @@ if(!$.isEmptyObject(issuedetails) && !$.isEmptyObject(issuedetails.fields)){
   }
 }
 
+
 const gameType = get_gameType(issue.typeId , parentdetails);
 const gameMode = get_gameMode(gameType , parentdetails, issuedetails);
+
+let parentfullDetails =  {};
+if(gameType === gameTypS.SUBTASK)
+{
+  parentfullDetails = await invoke('getIssueDetails', {issueKey : parentdetails['parentKey']});
+
+}
+
+const epicKey = gameType == gameTypS.EPIC ? issue.key : (gameType == gameTypS.STORY ? parentdetails.parentKey : (gameType === gameTypS.SUBTASK ? parentfullDetails.fields.parent.key : ''));
+const storageKeys = {"CONFIG" : 'config'+epicKey , "HISTORY" : "history"+epicKey, "VOTES" : "votes"+epicKey};
+
+const gamedetails = await getGamedetails();
+const gameHistory = await getGameHistory(); 
+
+let currentMove = {};
+if(gameType === gameTypS.SUBTASK)
+{
+  currentMove = gameHistory.filter((element) => { if(element.subtaskKey === issue.key){ return element; } });
+  currentMove = currentMove.length > 0 ? currentMove[0] : {};
+}
+
+$('#loader').addClass('d-none');// todo remove later and uncomment document ready
+console.log({context});
+console.log({epicKey});
+console.log({issuedetails});
+console.log({parentdetails});
 console.log({gameMode});
 console.log({gameType});
+console.log({gamedetails});
+console.log({gameHistory});
+console.log({currentMove});
 
 
 
@@ -97,7 +129,7 @@ function onDrop (source, target) {
  // illegal move
  if (move === null) return 'snapback'
   
- createSubtask(source, target);
+ updatemove(source, target);
  updateStatus()
 }
 
@@ -169,17 +201,21 @@ function getGameStatus(){
 
 async function createSubtask(source, target){
         const title = `${userdetails.displayName} moved from ${source} to ${target}`;
+        let subtaskKey = '';
 
-        const invokeResponse =  await invoke('createStory', { title:title , accountId : accountId , projectKey : "10000" , parentKey : "COM-17" , issueType : issueTypes.SUBTASK});
+        const invokeResponse =  await invoke('createStory', { title:title , accountId : accountId , projectKey : project.id , parentKey : issue.key , issueType : issueTypes.SUBTASK});
+        
         if(invokeResponse && invokeResponse.status && invokeResponse.status.status === 201)
         {
             const issueData = JSON.parse(invokeResponse.data);
-            show_success('Task ('+issueData.key + ") created succesfully for your move");
+            subtaskKey = issueData.key;
+            show_success('Sub-Task ('+issueData.key + ") has been created succesfully of your move");
         }
         else
         {
           show_error("Unable to create subtask, please try again or check for permission with admin");
         }
+        return subtaskKey;
 
 }
 
@@ -214,7 +250,7 @@ function updateStatus () {
 
  $status.html(status)
  $fen.html(game.fen())
- $pgn.html(game.pgn())
+ $pgn.html(game.pgn()) 
 }
 
 
@@ -248,14 +284,18 @@ function onMoveEnd () {
 
 var config = {
  draggable: gameMode === gameModes.EDIT ? true :false,
- position: 'start',
+ position: gameMode === gameModes.TODO ? 'start' : (gameType === gameTypS.SUBTASK ? currentMove.FEN: (gamedetails.FEN ? gamedetails.FEN: 'start')),
  onDragStart: onDragStart,
  onDrop: onDrop,
  onMouseoutSquare: onMouseoutSquare,
  onMouseoverSquare: onMouseoverSquare,
  onSnapEnd: onSnapEnd
 }
-board = Chessboard('myBoard', config)
+board = Chessboard('myBoard', config);
+if(gamedetails.FEN)
+{
+  game = new Chess(gamedetails.FEN);
+}
 
 updateStatus();
 
@@ -265,11 +305,32 @@ $(document).ready(function(){
     $('#hightlightMove').click(function(){
         highlightMove('w' , 'c2' , 'c4', 'c4');
     });   
+
+    $('#approve').click(async function(){
+      updateFenDetails();
+      const gameStatus = getGameStatus();
+      const title = `${gameStatus === 'MOVE_BLACK' ? "Black" : "White"} to Move`;
+      const invokeResponse =  await invoke('createStory', { title:title , accountId : accountId , projectKey : project.id , parentKey : epicKey , issueType : issueTypes.STORY});
+      console.log(invokeResponse);
+      if(invokeResponse && invokeResponse.status && invokeResponse.status.status === 201)
+      {
+        const issueData = JSON.parse(invokeResponse.data);
+        show_success('Story(' + issueData.key + ") created succesfully for another Team to move");
+        $('#action').addClass('d-none');
+      }
+      else
+      {
+        show_error("Unable to create Story, Please try again or check permission with admin");
+      }
+      //const res = await invoke("completeTask" , { issueKey : issue.key});
+      
+  });   
     
+
     $(".team").autocomplete({
       minLength: 2,
       source: async function( request, response ) {
-        const invokeResponse =  await invoke('userSearchByProject', { query: request.term , issueKey : "COM-15" })
+        const invokeResponse =  await invoke('userSearchByProject', { query: request.term , issueKey : epicKey })
         if(invokeResponse && invokeResponse.status && invokeResponse.status.status === 200)
         {
           const userdata = JSON.parse(invokeResponse.data);
@@ -283,8 +344,18 @@ $(document).ready(function(){
       select: function( event, ui ) {
         const eleId = $($(this)[0]).attr('id');
         const $eleIdResult =  $('#'+eleId+'Info');
+
+        if(eleId === 'whiteteam')
+        {
+          whiteteam.push(ui.item.value);
+        }
+        else
+        {
+          blackteam.push(ui.item.value);
+        }
         const currentValues =  $eleIdResult.data('values') ? $eleIdResult.data('values') : []; 
         currentValues.push(ui.item.value);
+
         $eleIdResult.append(ui.item.label + ',').data('values' , currentValues);
         return false;
       }
@@ -295,13 +366,18 @@ $(document).ready(function(){
         {
           const gameStatus = getGameStatus();
           const title = `${gameStatus === 'MOVE_BLACK' ? "Black" : "White"} to Move`;
-          const invokeResponse =  await invoke('createStory', { title:title , accountId : accountId , projectKey : "10000" , parentKey : "COM-15" , issueType : issueTypes.STORY});
+
+          const gamedetails = {"whiteteam" : whiteteam, "blackteam" : blackteam, "startDate" : currentDate , "createdBy" :accountId , voteCount : $('#votecount').val()};
+
+          const gameRes = saveGamedetails(gamedetails);
+          const invokeResponse =  await invoke('createStory', { title:title , accountId : accountId , projectKey : project.id , parentKey : issue.key , issueType : issueTypes.STORY});
           console.log(invokeResponse);
           if(invokeResponse && invokeResponse.status && invokeResponse.status.status === 201)
           {
             const issueData = JSON.parse(invokeResponse.data);
             show_success('Story(' + issueData.key + ") created succesfully for your Team to move");
             $('#config').addClass('d-none');
+            $('#startgame').addClass('d-none');
             $('#myBoard').removeClass('d-none');
           }
           else
@@ -315,7 +391,10 @@ $(document).ready(function(){
         }
     });
 
-    
+    $('#history').click(function (){
+      router.open($(this).attr('href'));
+      return false;
+    });
 });
 
 function show_error(msg){
@@ -363,7 +442,7 @@ function get_gameMode(gametype , parentdetails, issuedetails){
       gameMode = issuedetails.fields.labels.indexOf(gameLabel) > -1 ? gameModes.VIEW : gameModes.TODO ;
       break;
     case gameTypS.STORY:
-      gameMode = parentdetails.isGameIssue ? (parentdetails.hasSubtasks? gameModes.VIEW : gameModes.EDIT) : gameModes.VIEW;
+      gameMode = parentdetails.isGameIssue ? (parentdetails.hasSubtasks? gameModes.EDIT : gameModes.EDIT) : gameModes.VIEW;
       break;
     case gameTypS.SUBTASK:
       gameMode = parentdetails.isGameIssue ? gameModes.HIGHLIGHT : gameModes.VIEW;
@@ -377,7 +456,7 @@ function get_gameMode(gametype , parentdetails, issuedetails){
 
 function initializeGame(){
 
-  $('#loader').addClass('d-none');
+  //$('#loader').addClass('d-none');
 
   if(gameMode === gameModes.TODO)
   {
@@ -394,6 +473,7 @@ function initializeGame(){
     $('#game').removeClass('d-none');
     $('#info').removeClass('d-none');
     $('#myBoard').removeClass('d-none');
+    $('#history').parents('.row').removeClass('d-none');
   }
 
   if(gameMode === gameModes.VIEW && (gameType === gameTypS.STORY || gameType === gameTypS.SUBTASK))
@@ -415,17 +495,75 @@ function initializeGame(){
     {
       $('#game').removeClass('d-none');
       $('#myBoard').removeClass('d-none');
+      $('#action').removeClass('d-none');
+      $('#action').find('.btn').addClass('d-none');
       $('#hightlightMove').removeClass('d-none');
     }
     else if(gameType === gameTypS.SUBTASK)
     {
       $('#game').removeClass('d-none');
       $('#myBoard').removeClass('d-none');
+      $('#action').removeClass('d-none');
+      $('#action').find('.btn').addClass('d-none');
       $('#hightlightMove').removeClass('d-none');
       $('#approve').removeClass('d-none');
       $('#votemove').removeClass('d-none');     
 
     }
   }
+
+  $('#reload').click(async function(){
+    const res = await view.refresh();
+    console.log(res);
+  });
+
+  $('#history').attr('href' , `${siteurl}/issues/?jql=type%3D%20%22Story%22%20and%20parentEpic%20%3D%20%22${issue.key}%22%20order%20by%20created%20DESC`);
   
+}
+
+async function saveGamedetails(gamedetails)
+{
+    const res = await invoke("setStorage" , {key : storageKeys.CONFIG , value : gamedetails})
+    return res;
+}
+
+async function getGamedetails()
+{
+    return await invoke("getStorage" , {key : storageKeys.CONFIG})
+}
+
+async function saveGameHistory(gamedetails)
+{
+    let gamehistory = [];
+    let prevGameHistory = await getGameHistory();
+    if(!$.isEmptyObject(prevGameHistory))
+    {
+      gamehistory = prevGameHistory;      
+    }
+    gamehistory.push( gamedetails);
+    let res = await invoke("setStorage" , {key : storageKeys.HISTORY , value :gamehistory })
+    return res;
+}
+
+async function updateFenDetails()
+{
+    let prevgamedetails = await getGamedetails();
+    let currentgameDetails = prevgamedetails;
+    currentgameDetails['FEN'] = gamedetails.FEN;
+    const res = await saveGamedetails(currentgameDetails); 
+    return res;
+}
+
+async function getGameHistory()
+{
+    return await invoke("getStorage" , {key : storageKeys.HISTORY})
+}
+
+async function updatemove(source, target)
+{
+  const subtaskKey = await createSubtask(source,target);
+  const currentgamedetails = {source,target, FEN : game.fen() ,previousFEN : gamedetails.FEN, moveBy: accountId, storyKey : issue.key, subtaskKey , createdDate : currentDate}
+  const res = await saveGameHistory(currentgamedetails);
+  const viewFreshRes = await view.refresh();
+  return res;
 }

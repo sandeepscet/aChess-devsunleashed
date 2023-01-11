@@ -38,6 +38,63 @@ resolver.define("getIssueDetails", async ({ payload, context }) => {
     }
 });
 
+resolver.define("completeTask", async ({ payload, context }) => {
+  var bodyData = `{
+    "update": {
+      "comment": [
+        {
+          "add": {
+            "body": {
+              "type": "doc",
+              "version": 1,
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Task Move Approved",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "fields": {
+      "resolution": {
+        "name": "done"
+      }
+    },
+    "transition": {
+      "id": "3"
+    }
+  }`;
+  
+  const res = await api.asUser().requestJira(route`/rest/api/3/issue/${payload.issueKey}/transitions`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: bodyData
+  });
+    const status = res;
+    console.log(res);
+    const data = await res.text();
+    console.log(data);
+    if(status.status === 200)
+    {
+      return JSON.parse(data);
+    }
+    else{
+      return {};
+    }
+});
+
+
 
 resolver.define("jiraIssues", async ({ payload, context }) => {
 //  return {};
@@ -65,8 +122,7 @@ resolver.define("userSearchByProject", async ({ payload, context }) => {
   });
 
 
-  resolver.define("createStory", async ({ payload, context }) => {
-    console.log({payload});
+  resolver.define("createStory", async ({ payload, context }) => {    
 
     var bodyData = `{
       "update": {},
