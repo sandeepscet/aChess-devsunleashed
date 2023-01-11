@@ -374,6 +374,7 @@ $(document).ready(function(){
           console.log(invokeResponse);
           if(invokeResponse && invokeResponse.status && invokeResponse.status.status === 201)
           {
+            const updateIssueRes =  await invoke('updateIssue', {summary : `Game#${issue.key} Started` , label: gameLabel , issueKey:issue.key});
             const issueData = JSON.parse(invokeResponse.data);
             show_success('Story(' + issueData.key + ") created succesfully for your Team to move");
             $('#config').addClass('d-none');

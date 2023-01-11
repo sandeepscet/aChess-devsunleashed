@@ -96,6 +96,43 @@ resolver.define("completeTask", async ({ payload, context }) => {
 
 
 
+
+resolver.define("updateIssue", async ({ payload, context }) => {
+  var bodyData = `{
+    "update": {
+      "summary": [
+        {
+          "set": "${payload.summary}"
+        }
+      ],
+      "labels": [
+        {
+          "add": "${payload.label}"
+        }
+      ]
+    }    
+  }`;
+  
+  console.log(bodyData);
+  const res = await api.asUser().requestJira(route`/rest/api/3/issue/${payload.issueKey}`, {
+    method: 'PUT',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: bodyData
+  });
+  
+  
+  console.log(res);
+      const status = res;
+      const data = await res.text();
+      return { status, data };
+  });
+
+
+
+
 resolver.define("jiraIssues", async ({ payload, context }) => {
 //  return {};
   const res = await api.asUser().requestJira(route`/rest/api/3/search?jql=${payload.jql}`, {
