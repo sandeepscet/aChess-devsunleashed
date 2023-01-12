@@ -51,12 +51,19 @@ const gamedetails = await getGamedetails();
 const gameHistory = await getGameHistory(); 
 const gameMoves = await getGameMoves();
 
-let currentMove = {};
+let currentMove = {} , approvedMove = {};
 if(gameType === gameTypS.SUBTASK)
 {
   currentMove = gameHistory.filter((element) => { if(element.subtaskKey === issue.key){ return element; } });
   currentMove = currentMove.length > 0 ? currentMove[0] : {};
 }
+
+if(gameType === gameTypS.SUBTASK && gameMoves && gameMoves.length)
+{
+  approvedMove = gameMoves.filter((element) => { if(element.storyKey === parentdetails.parentKey){ return element; } });
+  approvedMove = approvedMove.length > 0 ? approvedMove[0] : {};
+}
+
 if(gameType === gameTypS.STORY && gameMoves && gameMoves.length)
 {
   currentMove = gameMoves.filter((element) => { if(element.storyKey === issue.key){ return element; } });
@@ -75,6 +82,7 @@ console.log({gamedetails});
 console.log({gameHistory});
 console.log({gameMoves});
 console.log({currentMove});
+console.log({approvedMove});
 
 
 
@@ -225,7 +233,7 @@ async function createSubtask(source, target){
         {
             const issueData = JSON.parse(invokeResponse.data);
             subtaskKey = issueData.key;
-            show_success('Sub-Task ('+issueData.key + ") has been created succesfully of your move");
+            show_success('Sub-Task ('+ issueLink(issueData.key) + ") has been created succesfully of your move");
         }
         else
         {
@@ -387,7 +395,7 @@ $(document).ready(function(){
           {
             const updateIssueRes =  await invoke('updateIssue', {summary : `Game#${issue.key} Started` , label: gameLabel , issueKey:issue.key});
             const issueData = JSON.parse(invokeResponse.data);
-            show_success('Story(' + issueData.key + ") created succesfully for your Team to move");
+            show_success('Story(' + issueLink(issueData.key) + ") created succesfully for your Team to move");
             $('#config').addClass('d-none');
             $('#startgame').addClass('d-none');
             $('#myBoard').removeClass('d-none');
@@ -533,10 +541,13 @@ function initializeGame(){
       $('#hightlightMove').removeClass('d-none')
 
       if(gamedetails.createdBy === accountId || (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam[0] === accountId) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam[0] === accountId)) {   
-          $('#approve').removeClass('d-none') 
+          if($.isEmptyObject(approvedMove) && gamedetails.status !== gameStatusMap.COMPLETED)
+          {
+            $('#approve').removeClass('d-none');
+          }
       };
 
-      if(isValidEditUser && gamedetails.status !== gameStatusMap.COMPLETED) { 
+      if(isValidEditUser && gamedetails.status !== gameStatusMap.COMPLETED && $.isEmptyObject(approvedMove)) { 
         $('#votemove').removeClass('d-none')
        };     
     }
@@ -629,7 +640,7 @@ async function updateGameOnMove() {
           console.log(invokeResponse);
           if(invokeResponse && invokeResponse.status && invokeResponse.status.ok)
           {
-            show_success(`Game Over, Please check ${epicKey} for Result and History`);
+            show_success(`Game Over, Please check ${issueLink(epicKey)} for Result and History`);
             $('#action').addClass('d-none');
           }
           else
@@ -646,7 +657,7 @@ async function updateGameOnMove() {
         if(invokeResponse && invokeResponse.status && invokeResponse.status.status === 201)
         {
           const issueData = JSON.parse(invokeResponse.data);
-          show_success('Story(' + issueData.key + ") created succesfully for another Team to move");
+          show_success('Story (' + issueLink(issueData.key) + ") created succesfully for another Team to move");
           $('#action').addClass('d-none');
         }
         else
@@ -654,4 +665,9 @@ async function updateGameOnMove() {
           show_error("Unable to create Story, Please try again or check permission with admin");
         }
       }  
+}
+
+function issueLink(key)
+{
+  return `<a href="${siteurl+'/browse/'+key}" target="_blank">${key}</a>`;
 }
