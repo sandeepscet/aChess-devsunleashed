@@ -12,7 +12,18 @@ Notification to all the people on their move time and to all on win - or mention
 - Keep on changing the status of epic , story and task based on move
 - whover has jira-project-settings-page or jira-admin-page can Intialize the game and play the game
 - EPIC : isSiteAdmin isAdmin isProjectAdmin canAdministerProjects
-- Story : canCreateChildren canCreateSubtasks and parent has already game started
+- Story : canCreateChildren canCreateSubtasks and parent has already game started 
+      displayConditions:
+        and:
+          canCreateChildren: true
+          and
+          canCreateSubtasks: true
+          and 
+            issueType: Epic
+            or:
+            issueType: Story
+            or:
+            issueType: Sub-task        
 Name - AChess- Atlassian Chess
 
 https://github.com/timburgan/timburgan
@@ -82,10 +93,11 @@ Forge POC
 
 ## TODO
 - [x] Attach label to epic once start game
-- [] Convert to view mode story once task finalized
+- [x] Convert to view mode story once task finalized
 - [] App enble only if valid
 - [] Stop drag and drop mouse over on story in view mode
 - [] On Invalid move, confirm should not be appear in edit mode on story
 - [] Show/hide config on epic
 - [] over over test 8/1p2rr2/8/8/8/8/1kn2bpn/5qKq w - - 0 1 and condition
-- [] Remove achess label logic for start game
+- [x] Remove achess label logic for start game
+- [x]  First person added in both team will be elected as leader

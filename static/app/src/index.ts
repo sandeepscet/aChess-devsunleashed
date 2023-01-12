@@ -309,7 +309,7 @@ function onMoveEnd () {
 const gamePosition = gameMode === gameModes.TODO ? '' : (gameType === gameTypS.SUBTASK ? currentMove.FEN: ( gameType === gameTypS.STORY && gameMode === gameModes.VIEW ? currentMove.FEN : (gamedetails.FEN ? gamedetails.FEN: '')));
 if(gamePosition) { game = new Chess(gamePosition); } else { game = new Chess();}
 
-let isValidEditUser = (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam.indexOf(accountId) > -1);
+let isValidEditUser = (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam && gamedetails.blackteam.indexOf(accountId) > -1);
 isValidEditUser = true; // TODO remove this
 
 var config = {
@@ -425,6 +425,16 @@ function show_info(msg){
 }
 
 function isStartConfigValid (){
+  if(whiteteam.length === 0 || blackteam.length === 0)
+  {
+    show_error("Please add atlease 1 member to each team");
+    return false;    
+  }
+  else if(!$('#votecount').val())
+  {
+    show_error("Please add votecount");
+    return false;    
+  }
   return true;
 }
 
@@ -451,10 +461,10 @@ function get_gameMode(gametype , parentdetails, issuedetails){
   let gameMode;
   switch (gametype) {
     case gameTypS.EPIC:    
-      gameMode = issuedetails.fields.labels.indexOf(gameLabel) > -1 ? gameModes.VIEW : gameModes.TODO ;
+      gameMode = $.isEmptyObject(gamedetails) ? gameModes.TODO : gameModes.VIEW ;
       break;
     case gameTypS.STORY:
-      gameMode = parentdetails.isGameIssue ? (currentMove ? gameModes.VIEW : gameModes.EDIT) : gameModes.VIEW;
+      gameMode = parentdetails.isGameIssue ? (!$.isEmptyObject(currentMove) ? gameModes.VIEW : gameModes.EDIT) : gameModes.VIEW;
       break;
     case gameTypS.SUBTASK:
       gameMode = parentdetails.isGameIssue ? gameModes.HIGHLIGHT : gameModes.VIEW;
@@ -496,7 +506,7 @@ function initializeGame(){
 
   if(gameMode === gameModes.EDIT && gameType === gameTypS.STORY)
   {
-    if( (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam.indexOf(accountId) > -1))
+    if( (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam && gamedetails.blackteam.indexOf(accountId) > -1))
     {
       $('#info').removeClass('d-none');
     }
@@ -520,9 +530,15 @@ function initializeGame(){
       $('#myBoard').removeClass('d-none');
       $('#action').removeClass('d-none');
       $('#action').find('.btn').addClass('d-none');
-      $('#hightlightMove').removeClass('d-none');
-      if(gamedetails.createdBy === accountId) {   $('#approve').removeClass('d-none') };
-      if(isValidEditUser && gamedetails.status !== gameStatusMap.COMPLETED) { $('#votemove').removeClass('d-none') };     
+      $('#hightlightMove').removeClass('d-none')
+
+      if(gamedetails.createdBy === accountId || (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam[0] === accountId) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam[0] === accountId)) {   
+          $('#approve').removeClass('d-none') 
+      };
+
+      if(isValidEditUser && gamedetails.status !== gameStatusMap.COMPLETED) { 
+        $('#votemove').removeClass('d-none')
+       };     
     }
   }
 

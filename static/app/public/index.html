@@ -51,6 +51,10 @@
       box-shadow: inset 0 0 3px 3px red;
     }
 
+    .btn-primary{
+      background-color : #0052CC
+    }
+
   </style>
 
 </head>
@@ -95,24 +99,29 @@
         <div id="myBoard" class="d-none">
         </div>
         <div id="config" class="d-none">
-          <form>
           <div class="row">
-            <div class="col">
-              <input type="text" id="whiteteam" name="whiteteam" class="team" />
-            </div>
-            <div class="col" id="whiteteamInfo">              
+            <div class="alert alert-info" role="alert">
+              First Member  of the team is Leader, can approve move without voting.
             </div>
           </div>
-          <div class="row">
-            <div class="col">
-              <input type="text" id="blackteam" name="blackteam" class="team" />
+          <form>
+          <div class="row pb-2">
+            <div class="form-group">
+              <label for="blackteam">Black Team</label>
+              <input type="text" class="form-control mt-2 mb-2 team" id="blackteam" name="blackteam" placeholder="Search Users for Black Team">
+              <small id="blackteamInfo" class="form-text text-muted teaminfo"></small>
             </div>
-            <div class="col" id="blackteamInfo">              
+          </div>
+          <div class="row mt-2 pb-2">
+            <div class="form-group">
+              <label for="exampleInputEmail1">White Team</label>
+              <input type="text" class="form-control mt-2 mb-2 team" id="whiteteam" name="whiteteam" placeholder="Search Users for White Team">
+              <small id="whiteteamInfo" class="form-text text-muted teaminfo"></small>
             </div>
           </div> 
-          <div class="row">
+          <div class="row mt-1">
             <div class="col">
-              Vote Count(To Auto Approve) :<input type="number" minlength="1" id="votecount" name="votecount" class="form-text" placeholder="Move will be automatically finalized based on this count"/>
+              Vote Count :<input type="number" min="1" value="2" id="votecount" name="votecount" class="form-text" placeholder="Approve the Move"/>
             </div>
           </div> 
           </form>        
@@ -122,7 +131,7 @@
   </div>
 
 
-  <div class="container mt-1 d-none" id="action">
+  <div class="container mt-2 d-none" id="action">
     <div class="row">
       <div class="col">
         <button  id="startgame" class="btn btn-primary"> Start Game </button>
