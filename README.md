@@ -86,3 +86,5 @@ Forge POC
 - [] App enble only if valid
 - [] Stop drag and drop mouse over on story in view mode
 - [] On Invalid move, confirm should not be appear in edit mode on story
+- [] Show/hide config on epic
+- [] stalemate condition

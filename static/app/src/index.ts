@@ -6,6 +6,7 @@ import { invoke, view, router } from '@forge/bridge';
 const issueTypes = {   "EPIC": "10000", "BUG": "10004", "STORY": "10001", "SUBTASK": "10003" , "TASK": "10002" };
 const gameTypS = {   "EPIC": "EPIC",  "STORY": "STORY", "SUBTASK": "SUBTASK" ,"OTHER" : "OTHER" };
 const gameModes = { "TODO" : "TODO" , "EDIT" : "EDIT" , "VIEW" : "VIEW" , "HIGHLIGHT" : "HIGHLIGHT"};
+const gameStatusMap = { "IN_PROGRESS" : 0 ,"COMPLETED" : 1};
 const gameLabel = "a-chess";
 let whiteteam = [], blackteam = [];
 const context = await view.getContext();
@@ -116,19 +117,18 @@ function onDragStart (source, piece, position, orientation) {
 }
 
 function onDrop (source, target) {
+   // see if the move is legal
+ var move = game.move({
+  from: source,
+  to: target,
+  promotion: 'q' // NOTE: always promote to a queen for example simplicity
+})
+   // illegal move
+ if (move === null) return 'snapback'
+
   const confirmed = confirm('Sure?');
   if(!confirmed) return 'snapback';
-
- // see if the move is legal
- var move = game.move({
-   from: source,
-   to: target,
-   promotion: 'q' // NOTE: always promote to a queen for example simplicity
- })
-
- // illegal move
- if (move === null) return 'snapback'
-  
+ 
  updatemove(source, target);
  updateStatus()
 }
@@ -164,7 +164,7 @@ function onMouseoutSquare (square, piece) {
  removeGreySquares()
 }
 
-const gamestatus = ["GAMEOVER_CHECKMATE" , "GAMEOVER_DRAWPOSITION" , "MOVE_BLACK" , "MOVE_WHITE" , "MOVE_BLACK_CHECK" , "MOVE_WHITE_CHECK" ];
+const gamestatus = ["GAMEOVER_CHECKMATE" , "GAMEOVER_DRAWPOSITION" ,  "GAMEOVER_STALEMATE" , "MOVE_BLACK" , "MOVE_WHITE" , "MOVE_BLACK_CHECK" , "MOVE_WHITE_CHECK" ];
 
 function getGameStatus(){
  var status = ''
@@ -173,6 +173,14 @@ function getGameStatus(){
  if (game.in_checkmate()) {
    status = "GAMEOVER_CHECKMATE";
  }
+
+  // stalemate?
+  if (game.in_stalemate()) {
+    status = "GAMEOVER_STALEMATE";
+  }
+
+ 
+
 
  // draw?
  else if (game.in_draw()) {
@@ -232,6 +240,14 @@ function updateStatus () {
    status = 'Game over, ' + moveColor + ' is in checkmate.'
  }
 
+  // checkmate?
+  if (game.in_stalemate()) {
+    status = 'Game over, ' + moveColor + ' is in Stalemare.'
+  }
+ 
+
+ 
+
  // draw?
  else if (game.in_draw()) {
    status = 'Game over, drawn position'
@@ -282,11 +298,11 @@ function onMoveEnd () {
    .addClass('highlight-' + colorToHighlight)
 }
 
-const gamePosition =  gameMode === gameModes.TODO ? '' : (gameType === gameTypS.SUBTASK ? currentMove.FEN: (gamedetails.FEN ? gamedetails.FEN: ''));
+const gamePosition = gameMode === gameModes.TODO ? '' : (gameType === gameTypS.SUBTASK ? currentMove.FEN: (gamedetails.FEN ? gamedetails.FEN: ''));
 game = new Chess(gamePosition);
 
-const isValidEditUser = (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam.indexOf(accountId) > -1);
-
+let isValidEditUser = (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam.indexOf(accountId) > -1);
+isValidEditUser = true; // TODO remove this
 var config = {
  draggable: gameMode === gameModes.EDIT ? (isValidEditUser ? true :false) :false,
  position:gamePosition ? gamePosition : 'start',
@@ -308,24 +324,9 @@ $(document).ready(function(){
     });   
 
     $('#approve').click(async function(){
-      updateFenDetails({'FEN' : game.fen()});
-      const gameStatus = getGameStatus();
-      const title = `${gameStatus === 'MOVE_BLACK' ? "Black" : "White"} to Move`;
-      const invokeResponse =  await invoke('createStory', { title:title , accountId : accountId , projectKey : project.id , parentKey : epicKey , issueType : issueTypes.STORY});
-      console.log(invokeResponse);
-      if(invokeResponse && invokeResponse.status && invokeResponse.status.status === 201)
-      {
-        const issueData = JSON.parse(invokeResponse.data);
-        show_success('Story(' + issueData.key + ") created succesfully for another Team to move");
-        $('#action').addClass('d-none');
-      }
-      else
-      {
-        show_error("Unable to create Story, Please try again or check permission with admin");
-      }
-      //const res = await invoke("completeTask" , { issueKey : issue.key});
-      
-  });   
+        const updatedGamedetails = await updateGameOnMove();
+        console.log({updatedGamedetails});
+    });   
     
 
     $(".team").autocomplete({
@@ -368,7 +369,7 @@ $(document).ready(function(){
           const gameStatus = getGameStatus();
           const title = `${gameStatus === 'MOVE_BLACK' ? "Black" : "White"} to Move`;
 
-          const gamedetails = {"whiteteam" : whiteteam, "blackteam" : blackteam, "startDate" : currentDate , "createdBy" :accountId , voteCount : $('#votecount').val()};
+          const gamedetails = {"whiteteam" : whiteteam, "blackteam" : blackteam, "startDate" : currentDate , "createdBy" :accountId , voteCount : $('#votecount').val(), status : gameStatusMap.IN_PROGRESS};
 
           const gameRes = saveGamedetails(gamedetails);
           const invokeResponse =  await invoke('createStory', { title:title , accountId : accountId , projectKey : project.id , parentKey : issue.key , issueType : issueTypes.STORY});
@@ -569,4 +570,43 @@ async function updatemove(source, target)
   const res = await saveGameHistory(currentgamedetails);
   const viewFreshRes = await view.refresh();
   return res;
+}
+
+async function updateGameOnMove() {
+      
+      const gameStatus = getGameStatus();
+      console.log({gameStatus});
+      if(["GAMEOVER_CHECKMATE" , "GAMEOVER_DRAWPOSITION" , "GAMEOVER_STALEMATE"].indexOf(gameStatus) > -1)
+      {
+          updateFenDetails({'FEN' : game.fen() ,status : gameStatusMap.COMPLETED});
+          const title = $status.html();
+          const invokeResponse =  await invoke('updateIssue', { summary:title , label : gameLabel , issueKey : epicKey});
+          console.log(invokeResponse);
+          if(invokeResponse && invokeResponse.status && invokeResponse.status.ok)
+          {
+            show_success(`Game Over, Please check ${epicKey} for Result and History`);
+            $('#action').addClass('d-none');
+          }
+          else
+          {
+            show_error("Game Over But Unable to update epic");
+          }
+      }
+      else
+      {
+        updateFenDetails({'FEN' : game.fen()});
+        const title = $status.html();
+        const invokeResponse =  await invoke('createStory', { title:title , accountId : accountId , projectKey : project.id , parentKey : epicKey , issueType : issueTypes.STORY});
+        console.log(invokeResponse);
+        if(invokeResponse && invokeResponse.status && invokeResponse.status.status === 201)
+        {
+          const issueData = JSON.parse(invokeResponse.data);
+          show_success('Story(' + issueData.key + ") created succesfully for another Team to move");
+          $('#action').addClass('d-none');
+        }
+        else
+        {
+          show_error("Unable to create Story, Please try again or check permission with admin");
+        }
+      }  
 }
