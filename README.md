@@ -94,7 +94,7 @@ Forge POC
 ## TODO
 - [x] Attach label to epic once start game
 - [x] Convert to view mode story once task finalized
-- [] App enble only if valid
+- [x] App enble only if valid
 - [x] Stop drag and drop mouse over on story in view mode
 - [] On Invalid move, confirm should not be appear in edit mode on story
 - [] Show/hide config on epic
@@ -102,3 +102,4 @@ Forge POC
 - [x] Remove achess label logic for start game
 - [x]  First person added in both team will be elected as leader
 - [x] Link all the success message with key
+- [] Vote Feature

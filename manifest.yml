@@ -6,6 +6,16 @@ modules:
         function: issue-panel-resolver
       title: A-Chess
       icon: https://hallarayurveda.com/images/achess.svg
+      displayConditions:
+        or:
+          and:
+            issueType: Epic
+            canCreateChildren: true
+          or:
+            issueType: Sub-task   
+            and:
+              issueType: Story 
+              canCreateSubtasks: true          
   function:
     - key: issue-panel-resolver
       handler: indexResolver.handler
