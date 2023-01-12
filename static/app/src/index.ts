@@ -282,9 +282,14 @@ function onMoveEnd () {
    .addClass('highlight-' + colorToHighlight)
 }
 
+const gamePosition =  gameMode === gameModes.TODO ? '' : (gameType === gameTypS.SUBTASK ? currentMove.FEN: (gamedetails.FEN ? gamedetails.FEN: ''));
+game = new Chess(gamePosition);
+
+const isValidEditUser = (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam.indexOf(accountId) > -1);
+
 var config = {
- draggable: gameMode === gameModes.EDIT ? true :false,
- position: gameMode === gameModes.TODO ? 'start' : (gameType === gameTypS.SUBTASK ? currentMove.FEN: (gamedetails.FEN ? gamedetails.FEN: 'start')),
+ draggable: gameMode === gameModes.EDIT ? (isValidEditUser ? true :false) :false,
+ position:gamePosition ? gamePosition : 'start',
  onDragStart: onDragStart,
  onDrop: onDrop,
  onMouseoutSquare: onMouseoutSquare,
@@ -292,10 +297,6 @@ var config = {
  onSnapEnd: onSnapEnd
 }
 board = Chessboard('myBoard', config);
-if(gamedetails.FEN)
-{
-  game = new Chess(gamedetails.FEN);
-}
 
 updateStatus();
 
@@ -307,7 +308,7 @@ $(document).ready(function(){
     });   
 
     $('#approve').click(async function(){
-      updateFenDetails();
+      updateFenDetails({'FEN' : game.fen()});
       const gameStatus = getGameStatus();
       const title = `${gameStatus === 'MOVE_BLACK' ? "Black" : "White"} to Move`;
       const invokeResponse =  await invoke('createStory', { title:title , accountId : accountId , projectKey : project.id , parentKey : epicKey , issueType : issueTypes.STORY});
@@ -485,7 +486,10 @@ function initializeGame(){
 
   if(gameMode === gameModes.EDIT && gameType === gameTypS.STORY)
   {
-    $('#info').removeClass('d-none');
+    if( (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam.indexOf(accountId) > -1))
+    {
+      $('#info').removeClass('d-none');
+    }
     $('#game').removeClass('d-none');
     $('#myBoard').removeClass('d-none');
   }
@@ -507,9 +511,8 @@ function initializeGame(){
       $('#action').removeClass('d-none');
       $('#action').find('.btn').addClass('d-none');
       $('#hightlightMove').removeClass('d-none');
-      $('#approve').removeClass('d-none');
-      $('#votemove').removeClass('d-none');     
-
+      if(gamedetails.createdBy === accountId) {   $('#approve').removeClass('d-none') };
+      if(isValidEditUser) { $('#votemove').removeClass('d-none') };     
     }
   }
 
@@ -546,11 +549,10 @@ async function saveGameHistory(gamedetails)
     return res;
 }
 
-async function updateFenDetails()
+async function updateFenDetails(gamedetails)
 {
     let prevgamedetails = await getGamedetails();
-    let currentgameDetails = prevgamedetails;
-    currentgameDetails['FEN'] = gamedetails.FEN;
+    let currentgameDetails = {...prevgamedetails, ...gamedetails};
     const res = await saveGamedetails(currentgameDetails); 
     return res;
 }

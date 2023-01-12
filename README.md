@@ -81,4 +81,8 @@ Forge POC
 
 
 ## TODO
-- attach label to epic once start game
+- [] Attach label to epic once start game
+- [] Convert to view mode story once task finalized
+- [] App enble only if valid
+- [] Stop drag and drop mouse over on story in view mode
+- [] On Invalid move, confirm should not be appear in edit mode on story
