@@ -87,4 +87,4 @@ Forge POC
 - [] Stop drag and drop mouse over on story in view mode
 - [] On Invalid move, confirm should not be appear in edit mode on story
 - [] Show/hide config on epic
-- [] stalemate condition
+- [] over over test 8/1p2rr2/8/8/8/8/1kn2bpn/5qKq w - - 0 1 and condition

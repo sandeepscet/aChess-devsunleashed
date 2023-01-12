@@ -303,8 +303,9 @@ game = new Chess(gamePosition);
 
 let isValidEditUser = (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam.indexOf(accountId) > -1);
 isValidEditUser = true; // TODO remove this
+
 var config = {
- draggable: gameMode === gameModes.EDIT ? (isValidEditUser ? true :false) :false,
+ draggable: gameMode === gameModes.EDIT ? (isValidEditUser && gamedetails && gamedetails.status !== gameStatusMap.COMPLETED ? true :false) :false,
  position:gamePosition ? gamePosition : 'start',
  onDragStart: onDragStart,
  onDrop: onDrop,
