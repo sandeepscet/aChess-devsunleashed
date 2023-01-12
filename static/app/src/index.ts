@@ -36,7 +36,6 @@ if(!$.isEmptyObject(issuedetails) && !$.isEmptyObject(issuedetails.fields)){
 
 
 const gameType = get_gameType(issue.typeId , parentdetails);
-const gameMode = get_gameMode(gameType , parentdetails, issuedetails);
 
 let parentfullDetails =  {};
 if(gameType === gameTypS.SUBTASK)
@@ -46,10 +45,11 @@ if(gameType === gameTypS.SUBTASK)
 }
 
 const epicKey = gameType == gameTypS.EPIC ? issue.key : (gameType == gameTypS.STORY ? parentdetails.parentKey : (gameType === gameTypS.SUBTASK ? parentfullDetails.fields.parent.key : ''));
-const storageKeys = {"CONFIG" : 'config'+epicKey , "HISTORY" : "history"+epicKey, "VOTES" : "votes"+epicKey};
+const storageKeys = {"CONFIG" : 'config'+epicKey , "HISTORY" : "history"+epicKey, "VOTES" : "votes"+epicKey , "MOVES" : "moves"+epicKey};
 
 const gamedetails = await getGamedetails();
 const gameHistory = await getGameHistory(); 
+const gameMoves = await getGameMoves();
 
 let currentMove = {};
 if(gameType === gameTypS.SUBTASK)
@@ -57,6 +57,12 @@ if(gameType === gameTypS.SUBTASK)
   currentMove = gameHistory.filter((element) => { if(element.subtaskKey === issue.key){ return element; } });
   currentMove = currentMove.length > 0 ? currentMove[0] : {};
 }
+if(gameType === gameTypS.STORY && gameMoves && gameMoves.length)
+{
+  currentMove = gameMoves.filter((element) => { if(element.storyKey === issue.key){ return element; } });
+  currentMove = currentMove.length > 0 ? currentMove[0] : {};
+}
+const gameMode = get_gameMode(gameType , parentdetails, issuedetails);
 
 $('#loader').addClass('d-none');// todo remove later and uncomment document ready
 console.log({context});
@@ -67,7 +73,9 @@ console.log({gameMode});
 console.log({gameType});
 console.log({gamedetails});
 console.log({gameHistory});
+console.log({gameMoves});
 console.log({currentMove});
+
 
 
 
@@ -242,7 +250,7 @@ function updateStatus () {
 
   // checkmate?
   if (game.in_stalemate()) {
-    status = 'Game over, ' + moveColor + ' is in Stalemare.'
+    status = 'Game over, ' + moveColor + ' is in Stalemate.'
   }
  
 
@@ -298,8 +306,8 @@ function onMoveEnd () {
    .addClass('highlight-' + colorToHighlight)
 }
 
-const gamePosition = gameMode === gameModes.TODO ? '' : (gameType === gameTypS.SUBTASK ? currentMove.FEN: (gamedetails.FEN ? gamedetails.FEN: ''));
-game = new Chess(gamePosition);
+const gamePosition = gameMode === gameModes.TODO ? '' : (gameType === gameTypS.SUBTASK ? currentMove.FEN: ( gameType === gameTypS.STORY && gameMode === gameModes.VIEW ? currentMove.FEN : (gamedetails.FEN ? gamedetails.FEN: '')));
+if(gamePosition) { game = new Chess(gamePosition); } else { game = new Chess();}
 
 let isValidEditUser = (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam.indexOf(accountId) > -1);
 isValidEditUser = true; // TODO remove this
@@ -314,7 +322,7 @@ var config = {
  onSnapEnd: onSnapEnd
 }
 board = Chessboard('myBoard', config);
-
+console.log({config});
 updateStatus();
 
 $(document).ready(function(){
@@ -446,7 +454,7 @@ function get_gameMode(gametype , parentdetails, issuedetails){
       gameMode = issuedetails.fields.labels.indexOf(gameLabel) > -1 ? gameModes.VIEW : gameModes.TODO ;
       break;
     case gameTypS.STORY:
-      gameMode = parentdetails.isGameIssue ? (parentdetails.hasSubtasks? gameModes.EDIT : gameModes.EDIT) : gameModes.VIEW;
+      gameMode = parentdetails.isGameIssue ? (currentMove ? gameModes.VIEW : gameModes.EDIT) : gameModes.VIEW;
       break;
     case gameTypS.SUBTASK:
       gameMode = parentdetails.isGameIssue ? gameModes.HIGHLIGHT : gameModes.VIEW;
@@ -514,7 +522,7 @@ function initializeGame(){
       $('#action').find('.btn').addClass('d-none');
       $('#hightlightMove').removeClass('d-none');
       if(gamedetails.createdBy === accountId) {   $('#approve').removeClass('d-none') };
-      if(isValidEditUser) { $('#votemove').removeClass('d-none') };     
+      if(isValidEditUser && gamedetails.status !== gameStatusMap.COMPLETED) { $('#votemove').removeClass('d-none') };     
     }
   }
 
@@ -536,6 +544,24 @@ async function saveGamedetails(gamedetails)
 async function getGamedetails()
 {
     return await invoke("getStorage" , {key : storageKeys.CONFIG})
+}
+
+async function getGameMoves()
+{
+    return await invoke("getStorage" , {key : storageKeys.MOVES})
+}
+
+async function saveGameMoves(gameMove)
+{
+    let gameMoves = [];
+    let prevGameMoves = await getGameMoves();
+    if(!$.isEmptyObject(prevGameMoves))
+    {
+      gameMoves = prevGameMoves;      
+    }
+    gameMoves.push( gameMove);
+    let res = await invoke("setStorage" , {key : storageKeys.MOVES , value :gameMoves })
+    return res;
 }
 
 async function saveGameHistory(gamedetails)
@@ -577,6 +603,8 @@ async function updateGameOnMove() {
       
       const gameStatus = getGameStatus();
       console.log({gameStatus});
+      const savedMoves = await saveGameMoves({"storyKey" : parentdetails.parentKey , 'FEN' : game.fen(), source :currentMove.source, target: currentMove.target});
+      const updateStoryRes =  await invoke('updateIssue', { summary:` | Moved from ${currentMove.source} to ${currentMove.target}` ,  issueKey : parentdetails.parentKey});
       if(["GAMEOVER_CHECKMATE" , "GAMEOVER_DRAWPOSITION" , "GAMEOVER_STALEMATE"].indexOf(gameStatus) > -1)
       {
           updateFenDetails({'FEN' : game.fen() ,status : gameStatusMap.COMPLETED});

@@ -98,22 +98,18 @@ resolver.define("completeTask", async ({ payload, context }) => {
 
 
 resolver.define("updateIssue", async ({ payload, context }) => {
-  var bodyData = `{
-    "update": {
-      "summary": [
-        {
-          "set": "${payload.summary}"
-        }
-      ],
-      "labels": [
-        {
-          "add": "${payload.label}"
-        }
-      ]
-    }    
-  }`;
+  const bodyData = {};
+  bodyData['update'] = {};
+  if(payload.summary){
+    bodyData['update']['summary'] = [       {         "add": payload.summary       }     ]
+  } 
+
+  if(payload.labels){
+    bodyData['update']['labels'] = [       {         "add": payload.label       }     ]
+  } 
+
   
-  console.log(bodyData);
+  console.log({bodyData});
   const res = await api.asUser().requestJira(route`/rest/api/3/issue/${payload.issueKey}`, {
     method: 'PUT',
     headers: {
@@ -124,7 +120,7 @@ resolver.define("updateIssue", async ({ payload, context }) => {
   });
   
   
-  console.log(res);
+  console.log({res});
       const status = res;
       const data = await res.text();
       return { status, data };
