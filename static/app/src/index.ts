@@ -72,7 +72,7 @@ if(gameType === gameTypS.STORY && gameMoves && gameMoves.length)
 }
 const gameMode = get_gameMode(gameType , parentdetails, issuedetails);
 
-$('#loader').addClass('d-none');// todo remove later and uncomment document ready
+
 console.log({context});
 console.log({epicKey});
 console.log({issuedetails});
@@ -333,9 +333,9 @@ var config = {
 board = Chessboard('myBoard', config);
 console.log({config});
 updateStatus();
+initializeGame();
 
-$(document).ready(function(){
-    initializeGame();    
+$(document).ready(function(){        
 
     $('#hightlightMove').click(function(){
         highlightMove('w' , 'c2' , 'c4', 'c4');
@@ -485,9 +485,10 @@ function get_gameMode(gametype , parentdetails, issuedetails){
   return gameMode;  
 }
 
-function initializeGame(){
+async function initializeGame(){
 
-  //$('#loader').addClass('d-none');
+  console.log("initializeGame started");
+  $('#loader').addClass('d-none');
 
   if(gameMode === gameModes.TODO)
   {
@@ -620,15 +621,23 @@ async function getGameHistory()
 
 async function updatemove(source, target)
 {
-  const subtaskKey = await createSubtask(source,target);
-  const currentgamedetails = {source,target, FEN : game.fen() ,previousFEN : gamedetails.FEN, moveBy: accountId, storyKey : issue.key, subtaskKey , createdDate : currentDate}
-  const res = await saveGameHistory(currentgamedetails);
-  const viewFreshRes = await view.refresh();
+  show_loader();
+  try {
+    const subtaskKey = await createSubtask(source,target);
+    const currentgamedetails = {source,target, FEN : game.fen() ,previousFEN : gamedetails.FEN, moveBy: accountId, storyKey : issue.key, subtaskKey , createdDate : currentDate}
+    const res = await saveGameHistory(currentgamedetails);
+    const viewFreshRes = await view.refresh();
+    hide_loader();
+  } catch (error) {
+    console.log(error);
+    hide_loader();
+  }
+  
   return res;
 }
 
 async function updateGameOnMove() {
-      
+      show_loader();
       const gameStatus = getGameStatus();
       console.log({gameStatus});
       const savedMoves = await saveGameMoves({"storyKey" : parentdetails.parentKey , 'FEN' : game.fen(), source :currentMove.source, target: currentMove.target});
@@ -644,10 +653,12 @@ async function updateGameOnMove() {
           {
             show_success(`Game Over, Please check ${issueLink(epicKey)} for Result and History`);
             $('#action').addClass('d-none');
+            hide_loader()
           }
           else
           {
             show_error("Game Over But Unable to update epic");
+            hide_loader()
           }
       }
       else
@@ -661,10 +672,12 @@ async function updateGameOnMove() {
           const issueData = JSON.parse(invokeResponse.data);
           show_success('Story (' + issueLink(issueData.key) + ") created succesfully for another Team to move");
           $('#action').addClass('d-none');
+          hide_loader();
         }
         else
         {
           show_error("Unable to create Story, Please try again or check permission with admin");
+          hide_loader()
         }
       }  
 }
@@ -672,4 +685,12 @@ async function updateGameOnMove() {
 function issueLink(key)
 {
   return `<a href="${siteurl+'/browse/'+key}" target="_blank">${key}</a>`;
+}
+
+function show_loader(){
+  $('#overlay').show();
+}
+
+function hide_loader(){
+  $('#overlay').hide();
 }
