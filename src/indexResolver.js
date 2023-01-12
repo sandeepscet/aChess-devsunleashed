@@ -101,22 +101,21 @@ resolver.define("updateIssue", async ({ payload, context }) => {
   const bodyData = {};
   bodyData['update'] = {};
   if(payload.summary){
-    bodyData['update']['summary'] = [       {         "add": payload.summary       }     ]
+    bodyData['update']['summary'] = [       {         "set": payload.summary       }     ]
   } 
 
   if(payload.labels){
     bodyData['update']['labels'] = [       {         "add": payload.label       }     ]
   } 
 
-  
-  console.log({bodyData});
+  console.log({bodyData : JSON.stringify(bodyData)});
   const res = await api.asUser().requestJira(route`/rest/api/3/issue/${payload.issueKey}`, {
     method: 'PUT',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    body: bodyData
+    body: JSON.stringify(bodyData)
   });
   
   
@@ -195,10 +194,6 @@ resolver.define("userSearchByProject", async ({ payload, context }) => {
     const data = await res.text();
     return { status, data };
   });
-
-
-
-
 
 
 

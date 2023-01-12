@@ -30,6 +30,7 @@ if(!$.isEmptyObject(issuedetails) && !$.isEmptyObject(issuedetails.fields)){
     parentdetails['parentKey'] = fields.parent.key;
     parentdetails['parentKeyType'] = fields.parent.fields.issuetype.id;
     parentdetails['hasSubtasks'] = fields.subtasks.length > 0;
+    parentdetails['summary'] = fields.parent.fields.summary;
     
   }
 }
@@ -516,7 +517,7 @@ function initializeGame(){
   {
     if( (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam && gamedetails.whiteteam.indexOf(accountId) > -1) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam && gamedetails.blackteam.indexOf(accountId) > -1))
     {
-      $('#info').removeClass('d-none');
+     // $('#info').removeClass('d-none'); //TODO display only in edit mode with right information
     }
     $('#game').removeClass('d-none');
     $('#myBoard').removeClass('d-none');
@@ -631,7 +632,8 @@ async function updateGameOnMove() {
       const gameStatus = getGameStatus();
       console.log({gameStatus});
       const savedMoves = await saveGameMoves({"storyKey" : parentdetails.parentKey , 'FEN' : game.fen(), source :currentMove.source, target: currentMove.target});
-      const updateStoryRes =  await invoke('updateIssue', { summary:` | Moved from ${currentMove.source} to ${currentMove.target}` ,  issueKey : parentdetails.parentKey});
+      const updateStoryRes =  await invoke('updateIssue', { summary:`${parentdetails.summary} | Moved from ${currentMove.source} to ${currentMove.target}` ,  issueKey : parentdetails.parentKey});
+      console.log({updateStoryRes});
       if(["GAMEOVER_CHECKMATE" , "GAMEOVER_DRAWPOSITION" , "GAMEOVER_STALEMATE"].indexOf(gameStatus) > -1)
       {
           updateFenDetails({'FEN' : game.fen() ,status : gameStatusMap.COMPLETED});
