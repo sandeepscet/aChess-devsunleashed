@@ -31,6 +31,8 @@ modules:
 resources:
   - key: game-resource
     path: static/app/public/
+    tunnel:
+      port: 9000
   - key: admin-resource
     path: static/admin/build/
 app:
