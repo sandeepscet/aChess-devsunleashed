@@ -30,9 +30,7 @@ modules:
       useAsGetStarted: true
 resources:
   - key: game-resource
-    path: static/app/dist/
-    tunnel:
-      port: 9000
+    path: static/app/public/
   - key: admin-resource
     path: static/admin/build/
 app:
