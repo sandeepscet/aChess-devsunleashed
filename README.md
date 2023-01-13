@@ -81,10 +81,11 @@ Forge POC
         - subtaskKey
         - date
     - votes
-        - gameid
-        - taskid
-        - votecount
-        - updatedDate
+        - epicKey
+        - taskKey
+        - votes
+            - createdBy
+            - createdDate
 ### coding
     - EPIC Mode - Read Only - current stage or config
     - Story Mode - Play (TODO) , Last movement (Done)
@@ -102,4 +103,11 @@ Forge POC
 - [x] Remove achess label logic for start game
 - [x]  First person added in both team will be elected as leader
 - [x] Link all the success message with key
-- [] Vote Feature
+- [x] Vote Feature
+
+
+### Credit
+    - (Loader Gif)[https://levelup.gitconnected.com/9-different-css-only-animated-loader-with-font-awesome-a479894f7676]
+    - (Chess js)
+    - (Chess UI)
+

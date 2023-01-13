@@ -345,6 +345,10 @@ $(document).ready(function(){
         const updatedGamedetails = await updateGameOnMove();
         console.log({updatedGamedetails});
     });   
+
+    $('#votemove').click(async function(){
+      await updateVoteDetails();
+    });      
     
 
     $(".team").autocomplete({
@@ -626,14 +630,53 @@ async function updatemove(source, target)
     const subtaskKey = await createSubtask(source,target);
     const currentgamedetails = {source,target, FEN : game.fen() ,previousFEN : gamedetails.FEN, moveBy: accountId, storyKey : issue.key, subtaskKey , createdDate : currentDate}
     const res = await saveGameHistory(currentgamedetails);
-    const viewFreshRes = await view.refresh();
-    hide_loader();
+    setTimeout(async () => {
+      await view.refresh();
+      hide_loader();
+    }, 2000);     
   } catch (error) {
     console.log(error);
     hide_loader();
   }
   
   return res;
+}
+
+async function getSubTaskVotes()
+{
+    return await invoke("getStorage" , {key : storageKeys.VOTES})
+}
+
+async function saveSubTaskVotes(gameVote)
+{
+    let gameVotes = [];
+    let prevGameVotes = await getSubTaskVotes();
+    if(!$.isEmptyObject(prevGameVotes))
+    {
+      gameVotes = prevGameVotes;      
+    }
+    gameVotes.push( gameVote);
+    await invoke("setStorage" , {key : storageKeys.VOTES , value :gameVotes })
+    return gameVotes;
+}
+
+async function updateVoteDetails() {
+  show_loader();
+  const gameVote = {"taskKey" : issue.key , "createdBy" : accountId , "createdDate" : currentDate}
+  const gameVotes = await saveSubTaskVotes(gameVote);
+  const currentTaskVotes = gameVotes.filter((element) => { if(element.taskKey === issue.key){ return element; } });
+  console.log({currentTaskVotes});
+  if(currentTaskVotes.length >= parseInt(gamedetails.voteCount ? gamedetails.voteCount : 1,10) )
+  {
+    await updateGameOnMove();
+  }
+  else
+  {
+    show_success(`This move voted successfully.`);
+    
+  }
+  $('#action').addClass('d-none');
+  hide_loader();  
 }
 
 async function updateGameOnMove() {

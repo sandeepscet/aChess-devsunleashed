@@ -24,15 +24,6 @@ modules:
     - key: events
       handler: indexEvents.run
   jira:adminPage:
-    - key: admin-page-example-hello-world-configure-page
-      resource: admin-resource
-      title: A-Chess-Configure
-      resolver:
-        function: issue-panel-resolver
-      useAsConfig: true
-    - key: admin-page-example-hello-world-admin-page
-      function: main
-      title: A-Chess-Get started
     - key: admin-page-example-hello-world-get-started-page
       function: main
       title: A-Chess-Get started
