@@ -26,7 +26,7 @@ modules:
   jira:adminPage:
     - key: admin-page-example-hello-world-get-started-page
       function: main
-      title: A-Chess-Get started
+      title: A-Chess Get started
       useAsGetStarted: true
 resources:
   - key: game-resource

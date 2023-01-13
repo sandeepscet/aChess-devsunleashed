@@ -690,8 +690,8 @@ async function updateGameOnMove() {
       {
           updateFenDetails({'FEN' : game.fen() ,status : gameStatusMap.COMPLETED});
           const title = $status.html();
-          const invokeResponse =  await invoke('updateIssue', { summary:title , label : gameLabel , issueKey : epicKey});
-          console.log(invokeResponse);
+          const invokeResponse =  await invoke('updateIssue', { summary:title , issueKey : epicKey});
+          console.log({invokeResponse});
           if(invokeResponse && invokeResponse.status && invokeResponse.status.ok)
           {
             show_success(`Game Over, Please check ${issueLink(epicKey)} for Result and History`);

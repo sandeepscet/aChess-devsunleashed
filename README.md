@@ -1,113 +1,78 @@
-# Idea
+# A-Chess (Atlassian Chess)
 
-Create EPIC to start the Game
-Two fields which allows multiple people represent the Teams.
-Story will be assumed as day move and tille will be final move
-Every Task will Have approve button , Max approve will convert to story as final move
-Reject the task if not valid move or valid move not allow at all
-Keep on adding history in epic description as Table
-One Day - one move by any Team - whoever quickly approve 10 (admin config) will convert issue into story
-Notification to all the people on their move time and to all on win - or mention on their move
-- Mentioned verybody when game over
-- Keep on changing the status of epic , story and task based on move
-- whover has jira-project-settings-page or jira-admin-page can Intialize the game and play the game
-- EPIC : isSiteAdmin isAdmin isProjectAdmin canAdministerProjects
-- Story : canCreateChildren canCreateSubtasks and parent has already game started 
-      displayConditions:
-        and:
-          canCreateChildren: true
-          and
-          canCreateSubtasks: true
-          and 
-            issueType: Epic
-            or:
-            issueType: Story
-            or:
-            issueType: Sub-task        
-Name - AChess- Atlassian Chess
+## Goal
+- Build a game that can improve team *collaboration* using the Atlassian platform
 
-https://github.com/timburgan/timburgan
-https://github.com/jhlywa/chess.js
-https://github.com/oakmac/chessboardjs/
+### Why
+- Collaboration is crucial for building and maintaining a successful team. Since more and more teams are now moving towards remote work, this is the primary issue everyone is facing. This game will help to increase collaboration using the most popular project platform. The reason to choose Chess is its popularity globally so the effort of training will be less.
 
-Forge POC
- - Check roles based action in app
- - Check update/creation of issue under epic and stories
- - Cron functionlity
- - update fields apis
+### How to Play
+- Chess is mostly played as an individual game. but the flavor of this chess can be played with the team. 
+- Project admin can add team members with game configuration and start the game
+- For every Team's move , a new story will be created automatically for the Team.
+- Assigned team members can play a move for their respective team and a subtask as a snapshot of that perticular move will be created.
+- Team members can vote on subtasks and the move will be finalized if the vote count matches with configured vote-count
+- Team Leader can also approve the subtask and finalize the move without a voting process, for initial traction.
+- on approval of the subtask, a story for another team will be automatically created and they can start their move.
 
-# Game
-## User
-### EPIC
- - EPIC with required permission will have Start Game button
-    - Validation : Both team should have atleast1 player
-    - Automcomplete input box for users and start button
- - Once get started , History Table with pagination with move by step and tasks link or jql link , created on desc
-    - Chess of current status
- - Once game completed, replay button 
-### Story
-    - Auto story crated on start of the game
-    - Mulptiple user can play from story.
-    - On each Move, confirmation and create task
-    - Keep on updateing story title on each started
-        - White Team Move with todo
-        - White Team move completed from A1 to D6 with status closed
-### Subtask
-    - Vote button on each subtask that is in progress
-    - Once tasks selected as final move , complete it to done
-    - rest of the not selection , reject
-    - last step to this step animation on board
-- use emoji to display movement and status in title
+## Features
+- Two teams, Black and White
+- Vote Count game config, for auto approve the move
+- Nice Chess UI with FEN 
+- App button visible only to valid users
+- Leader can approve
+- The team can vote to finalize the move
+- Valid Team members can only take actions
+- Snapshot saved with respective story/subtask
+- EPIC to show the current stage of the game
+- History of game
 
 
-## Admin
+## Demo
+- [Youtube](https://youtu.be/usEQRGRaISQ)
+- [Screenshots](devpost project Link)
 
-## Technical
-### Database
-    - game 
-        - id
-        - epicId
-        - whitteam
-        - blackteam
-        - startDate
-        - createdBy
-        - config (autoapprove on vote)
-    - History
-        - gameid
-        - moveId
-        - Move 
-        - FEN  position
-        - moveBy
-        - subtaskKey
-        - date
-    - votes
-        - epicKey
-        - taskKey
-        - votes
-            - createdBy
-            - createdDate
-### coding
-    - EPIC Mode - Read Only - current stage or config
-    - Story Mode - Play (TODO) , Last movement (Done)
-    - Tasks Mode - Read only with last movement animation
+## Forge Features 
+- Modules (JIRA, Admin)
+- UI (UIKit for Getting Started, App using Static Resources)
+- Storage API
+- Resolver, Bridge
+- Permission (Scope, Display Conditions,  External CSS/JS, External Domains, Backend)
+- Rest API(JIRA)
+
+## App Details
+- App Id : bc100dd8-d6dd-48a6-801e-9ac24f3427ce
+- App Site : https://devsunleashed.atlassian.net/
+- Distribution Link : https://developer.atlassian.com/console/myapps/bc100dd8-d6dd-48a6-801e-9ac24f3427ce/distribution
+- Creds for Demo : Email : liner77937@octovie.com   Password : H@ck@123
+- bitbucket repo : https://bitbucket.org/sandeepscet/devsunleashed-diy
 
 
-## TODO
-- [x] Attach label to epic once start game
-- [x] Convert to view mode story once task finalized
-- [x] App enble only if valid
-- [x] Stop drag and drop mouse over on story in view mode
-- [] On Invalid move, confirm should not be appear in edit mode on story
-- [] Show/hide config on epic
-- [] over over test 8/1p2rr2/8/8/8/8/1kn2bpn/5qKq w - - 0 1 and condition
-- [x] Remove achess label logic for start game
-- [x]  First person added in both team will be elected as leader
-- [x] Link all the success message with key
-- [x] Vote Feature
+## Install
+### Getting Started
+```
+npm install
+npx forge deploy
+npx forge install
+npm forge tunnel
+```
 
+### APP
+```
+cd  static/app
+npx yarn install
+npx yarn serve
+```
 
-### Credit
-    - (Loader Gif)[https://levelup.gitconnected.com/9-different-css-only-animated-loader-with-font-awesome-a479894f7676]
-    - (Chess js)
-    - (Chess UI)
+## Future Scope
+- [] Rewrote code with  Performance  Focus
+- [] Highlight move Snapshot in story and subtask
+- [] Team info and config as View Mode in EPIC
+- [] Transition Issue on game status change(only if performance not much get impact)
 
+## Credit
+- [chess.js](https://github.com/jhlywa/chess.js)
+- [chessboard UI](https://github.com/oakmac/chessboardjs/)
+- [Loader Gif](https://levelup.gitconnected.com/9-different-css-only-animated-loader-with-font-awesome-a479894f7676)
+- [Skeleton Picked up from my Another Project: Snake](https://bitbucket.org/sandeepscet/devsunleashed-hackathon)
+- [Code References from my another Project: DIY](https://bitbucket.org/sandeepscet/devsunleashed-diy)
