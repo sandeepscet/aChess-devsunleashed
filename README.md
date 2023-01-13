@@ -69,6 +69,7 @@ npx yarn serve
 - [] Highlight move Snapshot in story and subtask
 - [] Team info and config as View Mode in EPIC
 - [] Transition Issue on game status change(only if performance not much get impact)
+- [] Start Game with FEN Position
 
 ## Credit
 - [chess.js](https://github.com/jhlywa/chess.js)
