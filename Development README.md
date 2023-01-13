@@ -97,7 +97,7 @@ Forge POC
 - [x] Stop drag and drop mouse over on story in view mode
 - [] On Invalid move, confirm should not be appear in edit mode on story
 - [] Show/hide config on epic
-- [] over over test 8/1p2rr2/8/8/8/8/1kn2bpn/5qKq w - - 0 1 and condition
+- [] over over test 8/1p2rr2/8/8/8/8/1kn2bpn/5qKq w - - 0 1 and condition rn2k1nr/pp4pp/3p4/b1pP4/P1P2p1q/1b2pPRP/1P1NP1PQ/2B1KBNR w Kkq - 0 13
 - [x] Remove achess label logic for start game
 - [x]  First person added in both team will be elected as leader
 - [x] Link all the success message with key

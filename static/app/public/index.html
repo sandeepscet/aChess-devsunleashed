@@ -55,6 +55,10 @@
       background-color : #0052CC
     }
 
+    .team.ui-autocomplete-loading {
+      background: url('img/inputloading.gif') no-repeat right center;
+    }
+
 .spinner {
   top:12rem;
   height: 60px;
@@ -209,27 +213,13 @@
     <div class="row">
       <div class="col">
         <button  id="startgame" class="btn btn-primary"> Start Game </button>
-      </div>
-      <div class="col">
-        <button id="approve" class="btn btn-primary">Approve</button>
-      </div>
-      <div class="col">
+        <button id="approve" class="btn btn-primary me-5">Approve</button>
         <button id="votemove" class="btn btn-primary">Vote</button>
-      </div>
-      <div class="col d-none">
-        <button id="hightlightMove" class="btn  btn-secondary">Highlight Move</button>
+        <button id="hightlightMove" class="btn  btn-secondary d-none">Highlight Move</button>
+        <button  id="reload" class="btn btn-primary d-none"> Reload </button>
       </div>
     </div>    
   </div>
-
-  <div class="container mt-1 d-none">
-    <div class="row">
-      <div class="col">
-        <button  id="reload" class="btn btn-primary"> Reload </button>
-      </div>
-      </div>
-  </div>
-
 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"

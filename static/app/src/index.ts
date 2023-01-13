@@ -388,6 +388,7 @@ $(document).ready(function(){
     $('#startgame').click(async function(){
         if(isStartConfigValid())
         {
+          show_loader();
           const gameStatus = getGameStatus();
           const title = `${gameStatus === 'MOVE_BLACK' ? "Black" : "White"} to Move`;
 
@@ -403,16 +404,18 @@ $(document).ready(function(){
             show_success('Story(' + issueLink(issueData.key) + ") created succesfully for your Team to move");
             $('#config').addClass('d-none');
             $('#startgame').addClass('d-none');
-            $('#myBoard').removeClass('d-none');
+            $('#myBoard').removeClass('d-none');            
           }
           else
           {
             show_error("Unable to create Story, Please try again or check permission with admin");
           }
+          hide_loader();
         }
         else
         {
           show_error("Please add required info to start the Game");
+          hide_loader();
         }
     });
 
@@ -536,7 +539,7 @@ async function initializeGame(){
       $('#myBoard').removeClass('d-none');
       $('#action').removeClass('d-none');
       $('#action').find('.btn').addClass('d-none');
-      $('#hightlightMove').removeClass('d-none');
+      //$('#hightlightMove').removeClass('d-none');
     }
     else if(gameType === gameTypS.SUBTASK)
     {
@@ -544,7 +547,7 @@ async function initializeGame(){
       $('#myBoard').removeClass('d-none');
       $('#action').removeClass('d-none');
       $('#action').find('.btn').addClass('d-none');
-      $('#hightlightMove').removeClass('d-none')
+      //$('#hightlightMove').removeClass('d-none')
 
       if(gamedetails.createdBy === accountId || (getGameStatus() === "MOVE_WHITE" && gamedetails.whiteteam[0] === accountId) ||  (getGameStatus() === "MOVE_BLACK" && gamedetails.blackteam[0] === accountId)) {   
           if($.isEmptyObject(approvedMove) && gamedetails.status !== gameStatusMap.COMPLETED)
@@ -633,7 +636,7 @@ async function updatemove(source, target)
     setTimeout(async () => {
       await view.refresh();
       hide_loader();
-    }, 2000);     
+    }, 1000);     
   } catch (error) {
     console.log(error);
     hide_loader();
