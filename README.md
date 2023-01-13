@@ -29,8 +29,8 @@
 
 
 ## Demo
-- [Youtube](https://youtu.be/usEQRGRaISQ)
-- [Screenshots](devpost project Link)
+- [Youtube](https://youtu.be/GWKi9FesqWU)
+- [Screenshots](https://devpost.com/software/a-chess-atlassian-chess)
 
 ## Forge Features 
 - Modules (JIRA, Admin)
@@ -45,7 +45,7 @@
 - App Site : https://devsunleashed.atlassian.net/
 - Distribution Link : https://developer.atlassian.com/console/myapps/bc100dd8-d6dd-48a6-801e-9ac24f3427ce/distribution
 - Creds for Demo : Email : liner77937@octovie.com   Password : H@ck@123
-- bitbucket repo : https://bitbucket.org/sandeepscet/devsunleashed-diy
+- bitbucket repo : https://bitbucket.org/sandeepscet/devsunleashed-achess/
 
 
 ## Install
@@ -70,6 +70,7 @@ npx yarn serve
 - [] Team info and config as View Mode in EPIC
 - [] Transition Issue on game status change(only if performance not much get impact)
 - [] Start Game with FEN Position
+- [] Notification for move and game status
 
 ## Credit
 - [chess.js](https://github.com/jhlywa/chess.js)
