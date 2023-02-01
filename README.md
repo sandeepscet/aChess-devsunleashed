@@ -40,12 +40,6 @@
 - Permission (Scope, Display Conditions,  External CSS/JS, External Domains, Backend)
 - Rest API(JIRA)
 
-## App Details
-- App Id : bc100dd8-d6dd-48a6-801e-9ac24f3427ce
-- App Site : https://devsunleashed.atlassian.net/
-- Distribution Link : https://developer.atlassian.com/console/myapps/bc100dd8-d6dd-48a6-801e-9ac24f3427ce/distribution
-- Creds for Demo : Email : liner77937@octovie.com   Password : H@ck@123
-- bitbucket repo : https://bitbucket.org/sandeepscet/devsunleashed-achess/
 
 
 ## Install
@@ -76,5 +70,3 @@ npx yarn serve
 - [chess.js](https://github.com/jhlywa/chess.js)
 - [chessboard UI](https://github.com/oakmac/chessboardjs/)
 - [Loader Gif](https://levelup.gitconnected.com/9-different-css-only-animated-loader-with-font-awesome-a479894f7676)
-- [Skeleton Picked up from my Another Project: Snake](https://bitbucket.org/sandeepscet/devsunleashed-hackathon)
-- [Code References from my another Project: DIY](https://bitbucket.org/sandeepscet/devsunleashed-diy)
